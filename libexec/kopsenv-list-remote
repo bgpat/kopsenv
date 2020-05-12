@@ -19,8 +19,10 @@ json=$(curlw -s -L https://api.github.com/repos/kubernetes/kops/releases?per_pag
 (( "$?" )) && exit $?
 
 echo "$json" \
-  | grep 'download/[0-9\.]\{1,\}/kops-'$platform'"' \
+  | grep 'download/v\?[0-9\.]\{1,\}\(-[a-z]\{1,\}\.[0-9]\{1,\}\)\?/kops-'$platform'"' \
   | sed 's/^.*download\///; s/\/.*$//' \
-  | sort -t. -rn -k1,1 -k2,2 -k3,3 -k4,4 \
+  | sed 's/^v\?/\0,/' \
+  | sort -t',' -k 2rV \
+  | sed 's/^\(v\?\),/\1/' \
   | uniq
 
